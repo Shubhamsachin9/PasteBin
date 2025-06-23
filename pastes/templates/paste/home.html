@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pastebin - Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6 font-sans">
+
+  <!-- Copy Notification -->
+  <div id="copyNotification" class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-md hidden z-50">
+    ✅ Content Copied Successfully!
+  </div>
+
+  <!-- Paste Form -->
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow-md">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold">Create New Paste</h1>
+      <button type="submit" form="pasteForm" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        Create a Paste
+      </button>
+    </div>
+    <form method="post" id="pasteForm" class="space-y-4">
+      {% csrf_token %}
+      <textarea name="content" rows="6" class="w-full p-3 border rounded" placeholder="Paste your text here..." required></textarea>
+    </form>
+  </div>
+
+  <!-- Recent Pastes -->
+  <div class="max-w-3xl mx-auto mt-8">
+    <h2 class="text-xl font-semibold mb-4">Recent Pastes</h2>
+
+    {% for paste in pastes %}
+      <div class="bg-white p-4 rounded shadow mb-4">
+        <!-- Paste Content with URL underline -->
+        <div class="prose max-w-none text-gray-800 [&_a]:underline">
+          {{ paste.content|urlize|linebreaksbr }}
+        </div>
+
+        <!-- Action Icons -->
+        <div class="mt-3 flex justify-end gap-6 text-sm text-gray-600">
+
+          <!-- Edit -->
+          <a href="{% url 'paste_edit' paste.pk %}" class="text-blue-600 hover:text-blue-800" title="Edit">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487a2.25 2.25 0 013.182 3.182l-12 12a2.25 2.25 0 01-.796.502l-3.75 1.25 1.25-3.75a2.25 2.25 0 01.502-.796l12-12z"/>
+            </svg>
+          </a>
+
+          <!-- Delete -->
+          <a href="{% url 'paste_delete' paste.pk %}" class="text-red-600 hover:text-red-800" title="Delete">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </a>
+
+          <!-- Copy -->
+          <button type="button" onclick="copyContent(`{{ paste.content|escapejs }}`)" class="text-green-600 hover:text-green-800" title="Copy">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5h9a2 2 0 012 2v9m-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h2m4 12V9a2 2 0 00-2-2H5m14 8a2 2 0 01-2 2h-3" />
+            </svg>
+          </button>
+
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-gray-500">No pastes yet. Paste something above.</p>
+    {% endfor %}
+  </div>
+
+  <!-- JS for Copy Notification -->
+  <script>
+    function copyContent(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const notification = document.getElementById('copyNotification');
+        notification.classList.remove('hidden');
+        setTimeout(() => {
+          notification.classList.add('hidden');
+        }, 2000);
+      }).catch(err => {
+        alert('Failed to copy text: ', err);
+      });
+    }
+  </script>
+
+</body>
+</html>
