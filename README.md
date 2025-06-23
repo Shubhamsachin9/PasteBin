@@ -1,1 +1,1 @@
-images/screenshot.png
+ ![Screenshot](images/screenshot.png)
